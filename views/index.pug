@@ -1,14 +1,14 @@
 extends layout.pug
 
 block title
-	title= __('HELP_US_TRANSLATE_EVENT') + ' – ' + __('SITE_NAME')
+	title= __('HELP_US_TRANSLATE_EVENT', eventName) + ' – ' + __('SITE_NAME')
 
 block scripts
 	script(type='text/javascript', src='static/index.js')
 
 block content
-	h1= __('HELP_US_TRANSLATE_EVENT')
-	p= __('INTRO_TEXT')
+	h1= __('HELP_US_TRANSLATE_EVENT', eventName)
+	p= __('INTRO_TEXT', eventName)
 	p= __('INTRO_GET_STARTED')
 	p.input-group
 		label(for='filter').input-group-addon

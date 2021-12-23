@@ -31,6 +31,8 @@ const MONTH = 30 * 24 * 60 * 60 * 1000;
 // Load config
 import * as config from './config';
 
+const eventName = config.eventName;
+
 const isProduction = process.env.NODE_ENV === 'production';
 if (!isProduction) {
   log.warn('NODE_ENV is not set to production. Actual value: %s', process.env.NODE_ENV);
@@ -138,13 +140,13 @@ app.get('/', (req: PotentiallyAuthenticatedRequest, res) => {
   const { isAuthorized } = req;
   const scheduleVersion = Talk.getScheduleVersion();
   return Talk.allSorted().then(talks =>
-    res.render('index', { talks, isAuthorized, scheduleVersion })
+    res.render('index', { talks, isAuthorized, eventName, scheduleVersion })
   );
 });
 
 app.get('/impressum', (req: PotentiallyAuthenticatedRequest, res) => {
   const { isAuthorized } = req;
-  res.render('impressum', { isAuthorized });
+  res.render('impressum', { isAuthorized, eventName });
 });
 
 function ensureExistence<T>(thing?: T | null): T {
@@ -171,6 +173,7 @@ app.get('/talks/:slug', (req: PotentiallyAuthenticatedRequest, res, next) => {
       })
       .then(({ talk, comments }) => {
         res.render('talk', {
+          eventName,
           talk,
           comments,
           uploadCount,
@@ -274,6 +277,6 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(status).render('error', { status });
 });
 
-app.listen(9000, () => {
-  log.info('App listening on :9000');
+app.listen(9009, () => {
+  log.info('App listening on :9009');
 });
