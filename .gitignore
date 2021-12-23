@@ -6,3 +6,5 @@ config.js
 config.ts
 schedule.json
 schedule.*.json
+*.lock
+*-lock.*
