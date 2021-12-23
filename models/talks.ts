@@ -101,8 +101,7 @@ export default function TalkModel(
       this.language = talk.language;
       this.abstract = talk.abstract || undefined;
       this.day = day === null ? undefined : day;
-      const dayString = day === null ? 'day-unknown' : `day-${day}`;
-      this.filePath = path.resolve(fileRootPath, dayString, this.slug);
+      this.filePath = path.resolve(fileRootPath, this.id);
 
       this.speakers = talk.persons.map((p: any) => p.public_name);
 
