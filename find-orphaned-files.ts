@@ -14,9 +14,9 @@ Promise.all([ Talk.all(), Talk._getAllFiles() ])
 		_(files)
 			.each((meta, filePath) => {
 				if (!meta.isDir) return;
-				// Ignore first-level directories
+				// Ignore root-level directory
 				const nestLevel = filePath.split('/').length - schedulePath.split('/').length;
-				if (nestLevel < 2) return;
+				if (nestLevel < 1) return;
 
 				const matchingTalk = _(talks).find(t => t.filePath === filePath);
 				if (!matchingTalk) {
