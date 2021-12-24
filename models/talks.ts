@@ -41,14 +41,14 @@ interface FileInfo {
 }
 
 export default function TalkModel(
-  scheduleJsonPath: string | string[],
+  config: { schedulePaths: string|string[] },
   fileRootPath: string,
   shouldLog = true
 ) {
   const log = bunyan.createLogger({ name: 'c3t-drop-model', level: shouldLog ? 'info' : 'fatal' });
 
   const scheduleJsonPaths: string[] =
-    typeof scheduleJsonPath === 'string' ? [scheduleJsonPath] : scheduleJsonPath;
+    typeof config.schedulePaths === 'string' ? [config.schedulePaths] : config.schedulePaths;
 
   let talks: Talk[] = [];
   let sortedTalks: Talk[] = [];

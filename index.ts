@@ -40,7 +40,7 @@ if (!isProduction) {
 
 const filesBase = path.resolve(__dirname, 'files/');
 
-const Talk = TalkModel(config.schedulePaths, filesBase);
+const Talk = TalkModel(config, filesBase);
 
 const upload = multer({
   dest: path.resolve(__dirname, '.temp/'),

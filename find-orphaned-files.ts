@@ -3,11 +3,12 @@
 import path = require('path');
 import _ = require('lodash');
 import TalkModel from './models/talks';
+import * as config from './config';
 
 const schedulePath = path.resolve(__dirname, 'schedule.json');
 const filesBase = path.resolve(__dirname, 'files/');
 
-const Talk = TalkModel(schedulePath, filesBase, false);
+const Talk = TalkModel(config, filesBase);
 
 Promise.all([ Talk.all(), Talk._getAllFiles() ])
 	.then(([ talks, files ]) => {
