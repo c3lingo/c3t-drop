@@ -34,6 +34,7 @@ block content
 	section
 		h3= __('Upload Files')
 		form.well(method='POST', action='files/' enctype='multipart/form-data')
+			input(type='hidden', name='id', value=talk.id)
 			.form-group
 				label(for='input-files')
 					= __('Choose one or more files to upload')

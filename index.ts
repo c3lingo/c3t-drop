@@ -206,7 +206,8 @@ app.post('/talks/:slug/files/', upload.any(), (req, res, next) => {
     return;
   }
   log.info({ files, body }, 'Files received');
-  return Talk.findBySlug(req.params.slug)
+  const findTalk = body.id ? Talk.findById(body.id) : Talk.findBySlug(req.params.slug);
+  return findTalk
     .then(ensureExistence)
     .then(talk => {
       requestTalk = talk;
