@@ -225,7 +225,7 @@ export default function TalkModel(
   }
 
   let isInitialScan = true;
-  const filesReady = new Promise(resolve => {
+  const filesReady = new Promise<void>(resolve => {
     const fileWatcher = chokidar.watch(fileRootPath, {
       alwaysStat: true,
       ignored: '**/.DS_Store',
