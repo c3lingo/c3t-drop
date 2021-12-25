@@ -151,12 +151,12 @@ export default function TalkModel(
       return this;
     }
 
-    addFiles(files: Express.Multer.File[]) {
-      return Promise.all(
+    async addFiles(files: Express.Multer.File[]): Promise<this> {
+      await Promise.all(
         files.map(file => fs.rename(file.path, path.resolve(this.filePath, file.originalname)))
-      )
-        .then(wait(100)) // HACK: prevent Promise from resolving before watcher fired and file list has been rebuilt
-        .then(() => this);
+      );
+      await wait(100); // HACK: prevent Promise from resolving before watcher fired and file list has been rebuilt
+      return this;
     }
 
     static async all() {
@@ -188,28 +188,28 @@ export default function TalkModel(
     }
   }
 
-  async function updateTalks() {
+  async function updateTalks(): Promise<void> {
     // TODO: Refactor this so that talks won't be empty if a request comes in
     // while the talks are being updated.
-    talks = [];
-    talksBySlug = {};
-    versionInformation = null;
     const v: string[] = [];
 
     await Promise.all(
-      scheduleJsonPaths.map(path =>
+      scheduleJsonPaths.map((path) =>
         fs
           .readFile(path)
-          .then(buffer => JSON.parse(buffer.toString()))
+          .then((buffer) => JSON.parse(buffer.toString()))
           .then(({ schedule }) => {
+            talks = [];
+            talksBySlug = {};
+            versionInformation = null;
             try {
               v.push(`${schedule.conference.acronym}: ${schedule.version}`);
             } catch (e) {
               log.warn(e);
             }
-            _.each(schedule.conference.days, day => {
-              _.each(day.rooms, talks => {
-                _.each(talks, talk => {
+            _.each(schedule.conference.days, (day) => {
+              _.each(day.rooms, (talks) => {
+                _.each(talks, (talk) => {
                   new Talk(talk, day.index);
                 });
               });
@@ -250,7 +250,11 @@ export default function TalkModel(
   const scheduleWatcher = chokidar.watch(scheduleJsonPaths);
   scheduleWatcher.on('change', () => {
     log.info('Schedule changed; updating');
-    talksReady = Promise.all([talksReady, filesReady]).then(updateTalks);
+    talksReady = Promise.all([talksReady, filesReady])
+      .then(() => updateTalks())
+      .catch((e) => {
+        log.warn('Error while trying to update schedule', e);
+      });
   });
 
   function addFile(fp: string, stats: Stats) {
