@@ -2,8 +2,12 @@
 
 import path = require('path');
 import _ = require('lodash');
+import bunyan = require('bunyan');
+
 import TalkModel from './models/talks';
 import * as config from './config';
+
+const log = bunyan.createLogger({ name: 'c3t-drop-server' });
 
 const schedulePath = path.resolve(__dirname, 'schedule.json');
 const filesBase = path.resolve(__dirname, 'files/');
@@ -12,6 +16,7 @@ const Talk = TalkModel(config, filesBase);
 
 Promise.all([ Talk.all(), Talk._getAllFiles() ])
 	.then(([ talks, files ]) => {
+		log.info("talks:", talks.length);
 		_(files)
 			.each((meta, filePath) => {
 				if (!meta.isDir) return;

@@ -7,7 +7,6 @@ export const readCredentials: { [username: string]: string } = {
   foo: 'bar',
 }
 
-export const schedulePaths: string[] = [
-  resolve(__dirname, 'schedule.json'),
-  resolve(__dirname, 'schedule.2.json'),
-]
+export const scheduleURLs = ["https://data.c3voc.de/rC3_21/everything.json"];
+
+export const updateInterval = 1800000;

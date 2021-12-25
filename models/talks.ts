@@ -6,6 +6,9 @@ import path = require('path');
 import fs = require('fs-promise');
 import _ = require('lodash');
 import { Stats } from 'fs-promise';
+import axios from 'axios';
+import moment = require('moment');
+import crypto = require('crypto');
 
 import slugify from '../lib/slugify';
 import streamHash from '../lib/stream-hash';
@@ -41,14 +44,17 @@ interface FileInfo {
 }
 
 export default function TalkModel(
-  config: { schedulePaths: string|string[] },
+  config: { scheduleURLs: string|string[], updateInterval: number },
   fileRootPath: string,
   shouldLog = true
 ) {
   const log = bunyan.createLogger({ name: 'c3t-drop-model', level: shouldLog ? 'info' : 'fatal' });
 
+  const scheduleURLs: string[] =
+    typeof config.scheduleURLs === 'string' ? [config.scheduleURLs] : config.scheduleURLs;
+
   const scheduleJsonPaths: string[] =
-    typeof config.schedulePaths === 'string' ? [config.schedulePaths] : config.schedulePaths;
+    scheduleURLs.length == 1 ? ['schedule.json'] : scheduleURLs.map((_url, i) => `schedule.${i}.json` );
 
   let talks: Talk[] = [];
   let sortedTalks: Talk[] = [];
@@ -59,7 +65,69 @@ export default function TalkModel(
   let filesLastUpdated = 0;
   let versionInformation: string | null = null;
 
-  let talksReady = updateTalks();
+  let talksReady = downloadSchedules().then(updateTalks);
+
+  function downloadSchedules() {
+	return Promise.all(
+      scheduleURLs.map((url, i) => downloadIfNewer(url, scheduleJsonPaths[i]))
+    );
+  }
+
+  function updateSchedules(callback: () => void) {
+	downloadSchedules().then((downloadResults) => {
+	  if (downloadResults.some((boolValue) => boolValue)) {
+		updateTalks().then(callback);
+	  } else {
+		callback();
+      }
+    }).catch((error) => {
+	  log.error(error);
+      callback();
+    });
+  }
+
+  function scheduleNextUpdate() {
+    setTimeout(() => updateSchedules(scheduleNextUpdate), config.updateInterval);
+  }
+  scheduleNextUpdate();
+
+  function downloadIfNewer(url: string, fileName: string): Promise<boolean> {
+	return new Promise((resolve, reject) => {
+	  const mtime = fs.existsSync(fileName) ? fs.statSync(fileName).mtime : null;
+	  axios({
+	    method: 'get',
+	    url: url,
+	    responseType: 'stream',
+	    headers: mtime != null ? { "If-Modified-Since": mtime.toUTCString() } : {},
+	  }).then((response) => {
+		const tempFileName = 'download-' + crypto.randomBytes(16).toString('hex');
+	    const fileStream = fs.createWriteStream(tempFileName);
+	    response.data.pipe(fileStream);
+	    fileStream.on('finish', () => {
+		  fileStream.close();
+		  const lastModified = response.headers['last-modified'];
+		  if (lastModified) {
+            const rtime = moment(lastModified).toDate();
+		    fs.utimesSync(fileName, rtime, rtime);
+		  }
+		  fs.renameSync(tempFileName, fileName);
+		  log.info(`${fileName} downloaded`);
+          resolve(true);
+	    });
+	    fileStream.on('error', (error) => {
+		  fs.remove(tempFileName);
+		  reject(error);
+	    });
+	  }).catch((error) => {
+		if (error.response && error.response.status == 304) {
+		  log.info(`${fileName} unchanged`);
+		  resolve(false);
+		} else {
+          reject(error);
+		}
+	  });
+	});
+  }
 
   class Talk {
     id: string;
@@ -220,8 +288,8 @@ export default function TalkModel(
 
     versionInformation = v.sort().join('; ');
     sortedTalks = _.sortBy(talks, 'sortTitle');
-    await Promise.all(talks.map(t => fs.ensureDir(t.filePath)));
-    log.info('Done updating talks');
+    await Promise.all(talks.map(talk => fs.ensureDir(talk.filePath)));
+    log.info(`Done updating talks, ${talks.length} found`);
   }
 
   let isInitialScan = true;
