@@ -63,7 +63,7 @@ export default function TalkModel(
   let filesLastUpdated = 0;
   let versionInformation: string | null = null;
 
-  let talksReady = downloadSchedules().then(updateTalks);
+  let talksReady = downloadSchedules().then(scheduleNextUpdate).then(updateTalks);
 
   function downloadSchedules() {
 	return Promise.all(
@@ -87,7 +87,6 @@ export default function TalkModel(
   function scheduleNextUpdate() {
     setTimeout(() => updateSchedules(scheduleNextUpdate), config.updateInterval);
   }
-  scheduleNextUpdate();
 
   class Talk {
     id: string;
