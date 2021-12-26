@@ -116,15 +116,20 @@ export default function TalkModel(
 	    });
 	    fileStream.on('error', (error) => {
 		  fs.remove(tempFileName);
+		  log.error(`error writing ${fileName}: ${error}`);
 		  reject(error);
 	    });
 	  }).catch((error) => {
-		if (error.response && error.response.status == 304) {
-		  log.info(`${fileName} unchanged`);
-		  resolve(false);
+		if (error.response) {
+		  if (error.response.status == 304) {
+		    log.info(`${fileName} unchanged`);
+		  } else {
+		    log.warn(`${fileName} download failed with status ${error.response.status}`);
+		  }
 		} else {
-          reject(error);
+		  log.error(`error downloading ${fileName}: ${error}`);
 		}
+		resolve(false);
 	  });
 	});
   }
