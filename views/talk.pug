@@ -1,116 +1,116 @@
 extends layout.pug
 
 block title
-	title= talk.title + ' – ' + __('SITE_NAME')
+  title= talk.title + ' – ' + __('SITE_NAME')
 
 block scripts
-	script(src='/static/talk.js', defer)
+  script(src='/static/talk.js', defer)
 
 block content
-	if uploadCount > 0 || commentCount > 0
-		.alert.alert-success
-			if uploadCount > 0 && commentCount > 0
-				= __n('We’ve received %s files and your comment.', uploadCount)
-			else if uploadCount > 0
-				= __n('We’ve received %s files.', uploadCount)
-			else if commentCount > 0
-				= __('We’ve received your comment.')
-			=' '
-			strong= __('THANKS_FOR_HELPING', eventName)
-	else if nothingReceived
-		.alert.alert-danger
-			strong= __(`Sorry, we didn’t catch that.`)
-			=' '
-			= __(`It looks like you submitted an empty form.`)
+  if uploadCount > 0 || commentCount > 0
+    .alert.alert-success
+      if uploadCount > 0 && commentCount > 0
+        = __n('We’ve received %s files and your comment.', uploadCount)
+      else if uploadCount > 0
+        = __n('We’ve received %s files.', uploadCount)
+      else if commentCount > 0
+        = __('We’ve received your comment.')
+      =' '
+      strong= __('THANKS_FOR_HELPING', eventName)
+  else if nothingReceived
+    .alert.alert-danger
+      strong= __(`Sorry, we didn’t catch that.`)
+      =' '
+      = __(`It looks like you submitted an empty form.`)
 
-	h1
-		= talk.title
-		<br>
-		small
-			= talk.speakers.join(', ')
-			=' · '
-			= __n('Day %s', talk.day) + ', ' + talk.time
+  h1
+    = talk.title
+    <br>
+    small
+      = talk.speakers.join(', ')
+      =' · '
+      = __n('Day %s', talk.day) + ', ' + talk.time
 
-	section
-		h3= __('Upload Files')
-		form.well(method='POST', action='files/' enctype='multipart/form-data')
-			input(type='hidden', name='id', value=talk.id)
-			.form-group
-				label(for='input-files')
-					= __('Choose one or more files to upload')
-					=' '
-				input#input-files(type='file', name='files', multiple)
-				span.help-block= __('We’ll take any file type, up to 50 MB each')
-			.form-group
-				label(for='textarea-comment')= __('Add a comment if you like')
-				textarea#textarea-comment.form-control(rows=5, name='comment')
-			p.help-block
-				=__('We’ll only use the files you upload to help us provide simultaneous interpretations of talks at this event. We won’t share them outside our group of volunteers without your consent.', eventName)
-			p.help-block
-				=__('Once uploaded, we’ll only display part of the file name and the date of its last modification.')
-			input.btn.btn-primary(type='submit', value=__('Upload Files'))
+  section
+    h3= __('Upload Files')
+    form.well(method='POST', action='files/' enctype='multipart/form-data')
+      input(type='hidden', name='id', value=talk.id)
+      .form-group
+        label(for='input-files')
+          = __('Choose one or more files to upload')
+          =' '
+        input#input-files(type='file', name='files', multiple)
+        span.help-block= __('We’ll take any file type, up to 50 MB each')
+      .form-group
+        label(for='textarea-comment')= __('Add a comment if you like')
+        textarea#textarea-comment.form-control(rows=5, name='comment')
+      p.help-block
+        =__('We’ll only use the files you upload to help us provide simultaneous interpretations of talks at this event. We won’t share them outside our group of volunteers without your consent.', eventName)
+      p.help-block
+        =__('Once uploaded, we’ll only display part of the file name and the date of its last modification.')
+      input.btn.btn-primary(type='submit', value=__('Upload Files'))
 
-	section
-		h3
-			= __('Comments')
-			=' '
-			span.badge= talk.commentFiles.length
-		if isAuthorized
-			if talk.commentFiles.length
-				each comment in comments
-					.panel.panel-default
-						.panel-body= comment.body
-						.panel-footer= moment(comment.info.stats.ctime).locale(__('LOCALE')).format(__('DATE_TIME'))
-			else
-				.well.well-lg
-					.text-muted= __('No comments have been submitted yet.')
-		else
-			.well.well-lg
-				if talk.commentFiles.length
-					.text-muted= __(`Sorry, you need read access to see comments.`)
-				else
-					.text-muted= __('No comments have been submitted yet.')
+  section
+    h3
+      = __('Comments')
+      =' '
+      span.badge= talk.commentFiles.length
+    if isAuthorized
+      if talk.commentFiles.length
+        each comment in comments
+          .panel.panel-default
+            .panel-body= comment.body
+            .panel-footer= moment(comment.info.stats.ctime).locale(__('LOCALE')).format(__('DATE_TIME'))
+      else
+        .well.well-lg
+          .text-muted= __('No comments have been submitted yet.')
+    else
+      .well.well-lg
+        if talk.commentFiles.length
+          .text-muted= __(`Sorry, you need read access to see comments.`)
+        else
+          .text-muted= __('No comments have been submitted yet.')
 
-	section
-		h3
-			=__('Uploaded So Far')
-			=' '
-			span.badge= talk.files.length
-		if !talk.files.length
-			.well.well-lg
-				.text-muted= __('No files have been uploaded yet.')
-		else
-			if isAuthorized
-				p
-					a(href='files.zip').btn.btn-primary
-						span.glyphicon.glyphicon-download-alt
-						=' '
-						= __('Download All')
-			.list-group
-				each file in talk.files
-					if isAuthorized
-						a(href=`files/${file.name}`).list-group-item
-							h5.list-group-item-heading
-								= file.name
-							p.list-group-item-text
-								= moment(file.meta.stats.mtime).locale(__('LOCALE')).format(__('DATE_TIME'))
-							p.list-group-item-text
-								| SHA-1:
-								=' '
-								if file.meta.hash
-									= file.meta.hash
-								else
-									em= __('calculating')
-					else
-						.list-group-item
-							h5.list-group-item-heading
-								= file.redactedName
-							p.list-group-item-text
-								= moment(file.meta.stats.mtime).locale(__('LOCALE')).format(__('DATE_TIME'))
-							p.list-group-item-text
-								| SHA-1:
-								=' '
-								if file.meta.hash
-									= file.meta.hash
-								else
-									em= __('calculating')
+  section
+    h3
+      =__('Uploaded So Far')
+      =' '
+      span.badge= talk.files.length
+    if !talk.files.length
+      .well.well-lg
+        .text-muted= __('No files have been uploaded yet.')
+    else
+      if isAuthorized
+        p
+          a(href='files.zip').btn.btn-primary
+            span.glyphicon.glyphicon-download-alt
+            =' '
+            = __('Download All')
+      .list-group
+        each file in talk.files
+          if isAuthorized
+            a(href=`files/${file.name}`).list-group-item
+              h5.list-group-item-heading
+                = file.name
+              p.list-group-item-text
+                = moment(file.meta.stats.mtime).locale(__('LOCALE')).format(__('DATE_TIME'))
+              p.list-group-item-text
+                | SHA-1:
+                =' '
+                if file.meta.hash
+                  = file.meta.hash
+                else
+                  em= __('calculating')
+          else
+            .list-group-item
+              h5.list-group-item-heading
+                = file.redactedName
+              p.list-group-item-text
+                = moment(file.meta.stats.mtime).locale(__('LOCALE')).format(__('DATE_TIME'))
+              p.list-group-item-text
+                | SHA-1:
+                =' '
+                if file.meta.hash
+                  = file.meta.hash
+                else
+                  em= __('calculating')

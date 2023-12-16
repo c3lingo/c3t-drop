@@ -1,36 +1,36 @@
 extends layout.pug
 
 block title
-	title= __('HELP_US_TRANSLATE_EVENT', eventName) + ' – ' + __('SITE_NAME')
+  title= __('HELP_US_TRANSLATE_EVENT', eventName) + ' – ' + __('SITE_NAME')
 
 block scripts
-	script(type='text/javascript', src='static/index.js')
+  script(type='text/javascript', src='static/index.js')
 
 block content
-	h1= __('HELP_US_TRANSLATE_EVENT', eventName)
-	p= __('INTRO_TEXT', eventName)
-	p= __('INTRO_GET_STARTED')
-	p.input-group
-		label(for='filter').input-group-addon
-			span.glyphicon.glyphicon-search
-			=' '
-			=__('Search')
-			noscript=' ' + __('(JavaScript required)')
-		input#filter.form-control(type='text', placeholder=__('Start typing to find talks by name or speaker'), autocomplete='off', autocorrect='off', autocapitalize='off', spellcheck='false')
-	.list-group
-		each talk in talks
-			a(href=`/talks/${talk.id}/`, data-filter-string=`${talk.title} ${talk.speakers.join(' ')}`).list-group-item
-				h5.list-group-item-heading
-					= talk.title
-				p.list-group-item-text
-					span
-						= talk.speakers.join(', ')
-					=' · '
-					span(class=(talk.files.length ? 'label label-success' : 'label label-warning'))
-						= __n('%s files uploaded', talk.files.length)
-					=' '
-					if talk.commentFiles.length
-						span.label.label-info= __n('%s comments', talk.commentFiles.length)
-	if scheduleVersion
-		footer
-			p.text-muted.small= __('Schedule version: %s', scheduleVersion)
+  h1= __('HELP_US_TRANSLATE_EVENT', eventName)
+  p= __('INTRO_TEXT', eventName)
+  p= __('INTRO_GET_STARTED')
+  p.input-group
+    label(for='filter').input-group-addon
+      span.glyphicon.glyphicon-search
+      =' '
+      =__('Search')
+      noscript=' ' + __('(JavaScript required)')
+    input#filter.form-control(type='text', placeholder=__('Start typing to find talks by name or speaker'), autocomplete='off', autocorrect='off', autocapitalize='off', spellcheck='false')
+  .list-group
+    each talk in talks
+      a(href=`/talks/${talk.id}/`, data-filter-string=`${talk.title} ${talk.speakers.join(' ')}`).list-group-item
+        h5.list-group-item-heading
+          = talk.title
+        p.list-group-item-text
+          span
+            = talk.speakers.join(', ')
+          =' · '
+          span(class=(talk.files.length ? 'label label-success' : 'label label-warning'))
+            = __n('%s files uploaded', talk.files.length)
+          =' '
+          if talk.commentFiles.length
+            span.label.label-info= __n('%s comments', talk.commentFiles.length)
+  if scheduleVersion
+    footer
+      p.text-muted.small= __('Schedule version: %s', scheduleVersion)
