@@ -128,10 +128,6 @@ app.use(i18n.init);
 app.set('views', path.resolve(__dirname, 'views/'));
 app.set('view engine', 'pug');
 
-app.use(
-  '/vendor/bootstrap',
-  express.static(path.resolve(__dirname, 'node_modules/bootstrap/dist/')) as any
-);
 app.use('/static', express.static(path.resolve(__dirname, 'static/')) as any);
 
 app.locals.moment = moment;
