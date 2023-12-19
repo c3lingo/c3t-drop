@@ -9,3 +9,6 @@ export const readCredentials: { [username: string]: string } = {
 export const scheduleURLs: string[] = [
   'https://fahrplan.events.ccc.de/congress/2023/fahrplan/schedule.json',
 ];
+
+// How often to reload remote schedule URLs
+export const remoteScheduleUpdateInterval: number = 5 * 60 * 1000;

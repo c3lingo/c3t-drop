@@ -41,7 +41,7 @@ interface FileInfo {
 }
 
 export default function TalkModel(
-  config: { scheduleURLs: string | string[] },
+  config: { scheduleURLs: string | string[]; remoteScheduleUpdateInterval: number },
   fileRootPath: string,
   shouldLog = true
 ) {
@@ -53,7 +53,7 @@ export default function TalkModel(
 
   let talks: Talk[] = [];
   let sortedTalks: Talk[] = [];
-  let talksBySlug: { [slug: string]: Talk } = {};
+  let talksById: { [id: string]: Talk } = {};
   const files: {
     [path: string]: FileInfo;
   } = {};
@@ -169,12 +169,12 @@ export default function TalkModel(
 
     static async findBySlug(slug: string) {
       await Promise.all([talksReady, filesReady]);
-      return talksBySlug[slug];
+      return talks.find((t) => t.slug === slug);
     }
 
     static async findById(id: string) {
       await Promise.all([talksReady, filesReady]);
-      return _.find(talks, { id });
+      return talksById[id];
     }
 
     static getScheduleVersion(): null | string {
@@ -187,11 +187,9 @@ export default function TalkModel(
   }
 
   async function updateTalks(): Promise<void> {
-    // TODO: Refactor this so that talks won't be empty if a request comes in
-    // while the talks are being updated.
     const v: string[] = [];
     const newTalks: Talk[] = [];
-    const newTalksBySlug: Record<string, Talk> = {};
+    const newTalksById: Record<string, Talk> = {};
 
     await Promise.all(
       scheduleJsonURLs.map(async (url) => {
@@ -205,8 +203,8 @@ export default function TalkModel(
           for (const room of Object.values(day.rooms)) {
             for (const talk of room as any[]) {
               const talkObj = new Talk(talk, day.index);
-              talks.push(talkObj);
-              talksBySlug[talkObj.slug] = talkObj;
+              newTalks.push(talkObj);
+              newTalksById[talkObj.id] = talkObj;
             }
           }
         }
@@ -214,10 +212,10 @@ export default function TalkModel(
     );
 
     versionInformation = v.sort().join('; ');
-    sortedTalks = _.sortBy(talks, 'sortTitle');
-    await Promise.all(talks.map((t) => fs.mkdir(t.filePath, { recursive: true })));
+    await Promise.all(newTalks.map((t) => fs.mkdir(t.filePath, { recursive: true })));
+    sortedTalks = _.sortBy(newTalks, 'sortTitle');
     talks = newTalks;
-    talksBySlug = newTalksBySlug;
+    talksById = newTalksById;
     log.info('Done updating talks');
   }
 
@@ -244,10 +242,10 @@ export default function TalkModel(
       });
   });
 
-  const scheduleWatcher = chokidar.watch(
+  const localScheduleWatcher = chokidar.watch(
     scheduleJsonURLs.filter((u) => u.protocol === 'file:').map((u) => u.pathname)
   );
-  scheduleWatcher.on('change', () => {
+  localScheduleWatcher.on('change', () => {
     log.info('Schedule changed; updating');
     talksReady = Promise.all([talksReady, filesReady])
       .then(() => updateTalks())
@@ -255,6 +253,20 @@ export default function TalkModel(
         log.warn('Error while trying to update schedule', e);
       });
   });
+
+  // If there are remote URLs, call updateTalks() at regular intervals
+  if (scheduleJsonURLs.some((u) => u.protocol !== 'file:')) {
+    const interval = config.remoteScheduleUpdateInterval;
+    log.info('Remote schedule URLs detected; will update every %d seconds', interval / 1000);
+    setInterval(() => {
+      log.info('Updating schedule on interval');
+      talksReady = Promise.all([talksReady, filesReady])
+        .then(() => updateTalks())
+        .catch((e) => {
+          log.warn('Error while trying to update schedule', e);
+        });
+    }, interval);
+  }
 
   function addFile(fp: string, stats: Stats) {
     if (!isInitialScan) log.info('Added file %s', fp);
