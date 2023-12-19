@@ -41,14 +41,15 @@ interface FileInfo {
 }
 
 export default function TalkModel(
-  config: { schedulePaths: string | string[] },
+  config: { scheduleURLs: string | string[] },
   fileRootPath: string,
   shouldLog = true
 ) {
   const log = bunyan.createLogger({ name: 'c3t-drop-model', level: shouldLog ? 'info' : 'fatal' });
 
-  const scheduleJsonPaths: string[] =
-    typeof config.schedulePaths === 'string' ? [config.schedulePaths] : config.schedulePaths;
+  const scheduleJsonURLs: URL[] = (
+    typeof config.scheduleURLs === 'string' ? [config.scheduleURLs] : config.scheduleURLs
+  ).map(parseURL);
 
   let talks: Talk[] = [];
   let sortedTalks: Talk[] = [];
@@ -194,28 +195,24 @@ export default function TalkModel(
     const v: string[] = [];
 
     await Promise.all(
-      scheduleJsonPaths.map((path) =>
-        fs
-          .readFile(path)
-          .then((buffer) => JSON.parse(buffer.toString()))
-          .then(({ schedule }) => {
-            talks = [];
-            talksBySlug = {};
-            versionInformation = null;
-            try {
-              v.push(`${schedule.conference.acronym}: ${schedule.version}`);
-            } catch (e) {
-              log.warn(e);
+      scheduleJsonURLs.map(async (url) => {
+        const { schedule } = await getJSON(url);
+        talks = [];
+        talksBySlug = {};
+        versionInformation = null;
+        try {
+          v.push(`${schedule.conference.acronym}: ${schedule.version}`);
+        } catch (e) {
+          log.warn(e);
+        }
+        for (const day of schedule.conference.days) {
+          for (const room of Object.values(day.rooms)) {
+            for (const talk of room as any[]) {
+              new Talk(talk, day.index);
             }
-            _.each(schedule.conference.days, (day) => {
-              _.each(day.rooms, (talks) => {
-                _.each(talks, (talk) => {
-                  new Talk(talk, day.index);
-                });
-              });
-            });
-          })
-      )
+          }
+        }
+      })
     );
 
     versionInformation = v.sort().join('; ');
@@ -247,7 +244,9 @@ export default function TalkModel(
       });
   });
 
-  const scheduleWatcher = chokidar.watch(scheduleJsonPaths);
+  const scheduleWatcher = chokidar.watch(
+    scheduleJsonURLs.filter((u) => u.protocol === 'file:').map((u) => u.pathname)
+  );
   scheduleWatcher.on('change', () => {
     log.info('Schedule changed; updating');
     talksReady = Promise.all([talksReady, filesReady])
@@ -295,4 +294,30 @@ export default function TalkModel(
   }
 
   return Talk;
+}
+
+/** Fetches a JSON file via HTTP or from the file system */
+async function getJSON(url: URL | string): Promise<any> {
+  if (typeof url === 'string') url = new URL(url);
+  if (url.protocol === 'file:') {
+    const file = await fs.readFile(url);
+    return JSON.parse(file.toString());
+  } else if (url.protocol === 'http:' || url.protocol === 'https:') {
+    const response = await fetch(url);
+    return response.json();
+  }
+}
+
+/** Parses a string to a URL. If the string does not contain a protocal, it is
+ * assumed to refer to a file on the file system */
+function parseURL(url: string): URL {
+  try {
+    return new URL(url);
+  } catch (err) {
+    if (err instanceof TypeError && (err as any).code === 'ERR_INVALID_URL') {
+      return new URL(`file://${url}`);
+    } else {
+      throw err;
+    }
+  }
 }
