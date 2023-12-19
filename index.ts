@@ -174,6 +174,7 @@ app.get('/talks/:id', (req: PotentiallyAuthenticatedRequest, res, next) => {
         commentCount,
         nothingReceived,
         isAuthorized,
+        eventName,
       });
     })
     .catch(next);
