@@ -118,11 +118,26 @@ ul {
   padding-left: 1em;
 }
 
+.alert {
+  background-color: var(--color);
+  padding: 0.5em;
+  border-radius: 0.2em;
+}
+
+.alert-success {
+  --color: var(--green);
+}
+
+.alert-danger {
+  --color: var(--red);
+}
+
 .label {
   --color: var(--gray);
   background-color: var(--color);
-  padding: 0 0.2em;
-  border-radius: 2px;
+  padding: 0 0.4em;
+  border-radius: 1em;
+  color: var(--fg);
 }
 
 .label-success {
