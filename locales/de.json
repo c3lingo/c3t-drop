@@ -7,7 +7,7 @@
     "other": "Wir haben deine %s Dateien erhalten."
   },
   "THANKS_FOR_HELPING": "Danke, dass du uns dabei hilfst, den %s für alle zugänglich zu machen.",
-  "Add a comment if you like": "Füge einen Kommentar hinzu, wenn du möchtest",
+  "Add a comment if you’d like": "Füge einen Kommentar hinzu, wenn du möchtest",
   "We’ll only use the files you upload to help us provide simultaneous interpretations of talks at this event. We won’t share them outside our group of volunteers without your consent.": "Wir werden die Dateien, die du hochlädst, nur für unsere Simultanübersetzungen der Vorträge auf dem %s nutzen. Wir werden sie nicht ohne deine Einwilligung mit anderen teilen.",
   "Once uploaded, we’ll only display part of the file name and the date of its last modification.": "Sobald deine Dateien hochgeladen sind, zeigen wir nur noch den Dateinamen und das Datum der letzen Änderung.",
   "Upload Files": "Dateien hochladen",
@@ -49,5 +49,10 @@
   "Sorry, you need read access to see comments.": "Du brauchst Lesezugriff, um die Kommentare zu sehen.",
   "Sign In": "Anmelden",
   "Download All": "Alle herunterladen",
-  "Schedule version: %s": "Fahrplanversion: %s"
+  "Schedule version: %s": "Fahrplanversion: %s",
+  "Optional": "Optional",
+  "Comment": "Kommentar",
+  "We’ll take any file type": "Wir nehmen alles",
+  "You can upload multiple files at once": "Du kannst mehrere Dateien gleichzeitig hochladen",
+  "Maximum file size: %s MB": "Maximale Dateigröße: %s MB"
 }

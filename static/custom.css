@@ -114,6 +114,10 @@ a:visited {
   color: var(--dark-purple);
 }
 
+ul {
+  padding-left: 1em;
+}
+
 .label {
   --color: var(--gray);
   background-color: var(--color);

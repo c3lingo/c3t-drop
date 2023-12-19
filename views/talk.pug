@@ -36,15 +36,23 @@ block content
       h1= __('Upload Files')
       form.stack(method='POST', action='files/' enctype='multipart/form-data')
         input(type='hidden', name='id', value=talk.id)
+        ul
+          li= __('We’ll take any file type')
+          li= __('You can upload multiple files at once')
+          li= __('Maximum file size: %s MB', 50)
         .stack-0
-          label(for='input-files')
-            = __('Choose one or more files to upload')
+          div
+            label(for='input-files')
+              = __('Choose one or more files to upload')
             =' '
+            span.help= __('Optional')
           input#input-files(type='file', name='files', multiple)
-        span.help= __('We’ll take any file type, up to 50 MB each')
 
         .stack-0
-          label(for='textarea-comment')= __('Add a comment if you like')
+          div
+            label(for='textarea-comment')= __('Comment')
+            =' '
+            span.help= __('Optional')
           textarea#textarea-comment(rows=5, name='comment')
         p.help
           =__('We’ll only use the files you upload to help us provide simultaneous interpretations of talks at this event. We won’t share them outside our group of volunteers without your consent.', eventName)
