@@ -315,7 +315,9 @@ async function getJSON(url: URL | string): Promise<any> {
     const file = await fs.readFile(url);
     return JSON.parse(file.toString());
   } else if (url.protocol === 'http:' || url.protocol === 'https:') {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'c3lingo/c3t-drop (https://github.com/c3lingo/c3t-drop)' },
+    });
     return response.json();
   }
 }
