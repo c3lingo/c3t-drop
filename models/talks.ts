@@ -105,9 +105,6 @@ export default function TalkModel(
       this.filePath = path.resolve(fileRootPath, this.id);
 
       this.speakers = talk.persons.map((p: any) => p.public_name);
-
-      talks.push(this);
-      talksBySlug[this.slug] = this;
     }
 
     get files(): TalkFile[] {
@@ -193,13 +190,12 @@ export default function TalkModel(
     // TODO: Refactor this so that talks won't be empty if a request comes in
     // while the talks are being updated.
     const v: string[] = [];
+    const newTalks: Talk[] = [];
+    const newTalksBySlug: Record<string, Talk> = {};
 
     await Promise.all(
       scheduleJsonURLs.map(async (url) => {
         const { schedule } = await getJSON(url);
-        talks = [];
-        talksBySlug = {};
-        versionInformation = null;
         try {
           v.push(`${schedule.conference.acronym}: ${schedule.version}`);
         } catch (e) {
@@ -208,7 +204,9 @@ export default function TalkModel(
         for (const day of schedule.conference.days) {
           for (const room of Object.values(day.rooms)) {
             for (const talk of room as any[]) {
-              new Talk(talk, day.index);
+              const talkObj = new Talk(talk, day.index);
+              talks.push(talkObj);
+              talksBySlug[talkObj.slug] = talkObj;
             }
           }
         }
@@ -218,6 +216,8 @@ export default function TalkModel(
     versionInformation = v.sort().join('; ');
     sortedTalks = _.sortBy(talks, 'sortTitle');
     await Promise.all(talks.map((t) => fs.mkdir(t.filePath, { recursive: true })));
+    talks = newTalks;
+    talksBySlug = newTalksBySlug;
     log.info('Done updating talks');
   }
 
