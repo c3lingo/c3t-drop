@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     for (var i = 0; i < filterTargets.length; i++) {
       field = filterTargets[i];
       if (field.getAttribute('data-filter-string').toLowerCase().indexOf(filterString) !== -1) {
-        field.style.display = 'block';
+        field.style.display = '';
       } else {
         field.style.display = 'none';
       }

@@ -1,6 +1,8 @@
 extends layout.pug
 
 block content
-  h1= __('Error %s', status)
-  if status === 404
-    p= __('The requested page could not be found.')
+  .wrapper.stack
+    header.main-header
+      h1= __('Error %s', status)
+    if status === 404
+      p= __('The requested page could not be found.')

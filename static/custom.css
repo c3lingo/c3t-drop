@@ -1,14 +1,240 @@
+* {
+  margin: 0;
+}
+
 html {
-  position: relative;
-  min-height: 100%;
 }
+
 body {
-  margin-bottom: 60px;
+  --sans-serif: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue,
+    helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+  --serif: Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times,
+    Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+  --mono: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+
+  --gray: oklch(84% 0.02 234);
+  --green: oklch(84% 0.17 130);
+  --yellow: oklch(84% 0.17 84);
+  --red: oklch(84% 0.17 28);
+  --blue: oklch(84% 0.17 260);
+  --dark-blue: oklch(30% 0.17 260);
+  --purple: oklch(84% 0.17 325);
+  --dark-purple: oklch(30% 0.17 325);
+
+  --accent-color: var(--yellow);
+  --bg: #fff;
+  --fg: #000;
+
+  font-family: var(--sans-serif);
+  line-height: 1.5;
+  margin: 0;
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+  color: var(--fg);
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 1em 0 0.5em;
-  background-color: #f5f5f5;
+
+@media (prefers-color-scheme: dark) {
+  body {
+    --gray: oklch(40% 0.02 234);
+    --green: oklch(40% 0.17 130);
+    --yellow: oklch(40% 0.17 84);
+    --red: oklch(40% 0.17 28);
+    --blue: oklch(40% 0.17 260);
+    --dark-blue: oklch(90% 0.1 260);
+    --purple: oklch(40% 0.17 325);
+    --dark-purple: oklch(90% 0.1 325);
+    --bg: #000;
+    --fg: #fff;
+  }
+}
+
+.wrapper {
+  max-width: 60rem;
+  padding: 0 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.global-header {
+  margin-bottom: 2em;
+  background-color: var(--accent-color);
+  border-bottom: 1px solid color-mix(in oklab, var(--accent-color) 90%, currentColor);
+}
+
+.global-header[data-is-authorized] {
+  --accent-color: var(--green);
+}
+
+.global-header a:link,
+.global-header a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+.global-header nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+.global-header h1 {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+main {
+  flex-grow: 1;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+input[type='text'] {
+  padding: 0.2em;
+}
+
+label {
+  font-weight: 500;
+}
+
+a:link {
+  color: var(--dark-blue);
+}
+
+a:visited {
+  color: var(--dark-purple);
+}
+
+.label {
+  --color: var(--gray);
+  background-color: var(--color);
+  padding: 0 0.2em;
+  border-radius: 2px;
+}
+
+.label-success {
+  --color: var(--green);
+}
+
+.label-warning {
+  --color: var(--yellow);
+}
+
+.label-error {
+  --color: var(--red);
+}
+
+.badge {
+  --color: var(--gray);
+
+  display: inline-block;
+  background-color: var(--color);
+  min-width: 2em;
+  padding: 0 0.5em;
+  box-sizing: border-box;
+  border-radius: 2em;
+  text-align: center;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2em;
+  background-color: var(--gray);
+  border-radius: 0.5em;
+}
+
+.text-muted {
+  opacity: 0.6;
+}
+
+.stack,
+[class^='stack-'],
+[class*=' stack-'] {
+  --gap: 1em;
+  display: grid;
+  row-gap: var(--gap);
+}
+
+.stack-0 {
+  row-gap: 0;
+}
+
+.stack-s {
+  row-gap: 0.5em;
+}
+
+.stack-l {
+  row-gap: 2em;
+}
+
+.help {
+  font-size: 0.8em;
+  opacity: 0.6;
+}
+
+.main-header h1 {
+  font-size: 1.8em;
+  font-weight: 500;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+section h1 {
+  font-size: 1.4em;
+  font-weight: 500;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.link-list__item {
+  display: block;
+  padding: 0.5em;
+  margin-left: -0.5em;
+  margin-right: -0.5em;
+
+  text-decoration: none;
+}
+
+a:hover.link-list__item {
+  background-color: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+a:active.link-list__item {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.link-list__item > * {
+  margin: 0;
+}
+
+.link-list__primary {
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  row-gap: 1em;
+}
+
+.list > * {
+  border-left: 0.2em solid var(--gray);
+  padding-left: 0.5em;
+}
+
+.comment pre {
+  font-family: inherit;
+}
+
+.file {
+  color: inherit;
+  text-decoration: none;
 }

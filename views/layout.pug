@@ -7,25 +7,33 @@ html(lang=__('LOCALE'))
     meta(name='viewport', content='width=device-width, initial-scale=1')
     meta(charset='utf-8')
     block scripts
+    style
+      | .noscript { display: none; }
+    noscript
+      style
+        | .needs-js { display: none; }
+        | .noscript { display: initial; }
   body
-    nav.navbar.navbar-default.navbar-static-top
-      .container
-        .navbar-header
-          a.navbar-brand(href='/')= __('SITE_NAME')
-        p.navbar-text.navbar-right
+    header.global-header(data-is-authorized=isAuthorized)
+      nav.wrapper
+        h1
+          a(href='/')= __('SITE_NAME')
+        p
           if isAuthorized
             span.label.label-success= __('Read Access')
           else
             a.label.label-default(href='/sign-in')= __('Sign In')
           =' '
-          a(href='?lang=de', lang='de', title='Deutsch') de
-          =' / '
-          a(href='?lang=en', lang='en', title='English') en
-    .container
+          if __('LOCALE') != 'de'
+            a(href='?lang=de', lang='de', title='Deutsch') Deutsch
+          if __('LOCALE') != 'en'
+            a(href='?lang=en', lang='en', title='English') English
+
+    main.main-content
       block content
 
-    footer.footer
-      .container
+    footer.main-footer
+      .wrapper
         p.text-muted
           != __('Questions? Email us at %s', '<a href="mailto:hello@c3lingo.org">hello@c3lingo.org</a>')
           =' · '
