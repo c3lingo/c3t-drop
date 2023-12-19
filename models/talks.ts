@@ -153,7 +153,7 @@ export default function TalkModel(
       await Promise.all(
         files.map((file) => fs.rename(file.path, path.resolve(this.filePath, file.originalname)))
       );
-      await wait(100); // HACK: prevent Promise from resolving before watcher fired and file list has been rebuilt
+      await wait(200); // HACK: prevent Promise from resolving before watcher fired and file list has been rebuilt
       return this;
     }
 
