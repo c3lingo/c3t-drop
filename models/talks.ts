@@ -11,7 +11,6 @@ import redactFilename from '../lib/redact-filename';
 import slugify from '../lib/slugify';
 import sortTitle from '../lib/sort-title';
 import streamHash from '../lib/stream-hash';
-import wait from '../lib/wait-promise';
 
 const COMMENT_EXTENSION = '.comment.txt';
 
@@ -145,15 +144,20 @@ export default function TalkModel(
     }
 
     async addComment(comment: string): Promise<this> {
-      await fs.writeFile(path.resolve(this.filePath, `${Date.now()}${COMMENT_EXTENSION}`), comment);
+      const commentPath = path.resolve(this.filePath, `${Date.now()}${COMMENT_EXTENSION}`);
+      await fs.writeFile(commentPath, comment);
+      addFile(commentPath, await fs.stat(commentPath));
       return this;
     }
 
     async addFiles(files: Express.Multer.File[]): Promise<this> {
       await Promise.all(
-        files.map((file) => fs.rename(file.path, path.resolve(this.filePath, file.originalname)))
+        files.map(async (file) => {
+          const destPath = path.resolve(this.filePath, file.originalname);
+          await fs.rename(file.path, destPath);
+          addFile(destPath, await fs.stat(destPath));
+        })
       );
-      await wait(200); // HACK: prevent Promise from resolving before watcher fired and file list has been rebuilt
       return this;
     }
 
