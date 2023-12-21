@@ -36,9 +36,7 @@
     "@types/node": "^20.10.4",
     "jest": "^29.7.0",
     "prettier": "^3.1.1",
-    "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "ts-jest": "^29.1.1"
   },
   "dependencies": {
     "archiver": "^6.0.1",
@@ -54,6 +52,13 @@
     "moment": "^2.29.4",
     "multer": "^1.4.5-lts.1",
     "pug": "^3.0.2",
-    "pushover-notifications": "^1.2.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dockerfile": {
+    "alpine": true,
+    "cache": "",
+    "port": 9000,
+    "dev": true
   }
 }

@@ -43,7 +43,7 @@ const filesBase = path.resolve(__dirname, 'files/');
 const Talk = TalkModel(config, filesBase);
 
 const upload = multer({
-  dest: path.resolve(__dirname, '.temp/'),
+  dest: path.resolve(__dirname, 'files/.temp/'),
   limits: {
     fileSize: 50e6,
   },
