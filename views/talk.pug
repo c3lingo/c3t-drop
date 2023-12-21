@@ -47,7 +47,8 @@ block content
               = __('Choose one or more files to upload')
             =' '
             span.help= __('Optional')
-          input#input-files(type='file', name='files', multiple)
+          // Must be width: 100% to prevent horizontal scroll on small iPhones
+          input#input-files(type='file', name='files', multiple, style='width: 100%')
 
         .stack-0
           div
