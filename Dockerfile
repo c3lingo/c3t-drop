@@ -30,6 +30,8 @@ RUN yarn install --frozen-lockfile --production=false
 COPY --link . .
 COPY env-config.ts config.ts
 
+RUN yarn run build
+
 
 # Final stage for app image
 FROM base

@@ -14,7 +14,9 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 // Models
-import TalkModel, { TalkFile } from './models/talks';
+import TalkModel, { TalkFile } from './src/models/talks';
+
+import { fromRoot } from './src/lib/from-root';
 
 interface PotentiallyAuthenticatedRequest extends express.Request {
   isAuthorized?: boolean;
@@ -38,12 +40,12 @@ if (!isProduction) {
   log.warn('NODE_ENV is not set to production. Actual value: %s', process.env.NODE_ENV);
 }
 
-const filesBase = path.resolve(__dirname, 'files/');
+const filesBase = fromRoot('files/');
 
 const Talk = TalkModel(config, filesBase);
 
 const upload = multer({
-  dest: path.resolve(__dirname, 'files/.temp/'),
+  dest: path.resolve(filesBase, '.temp/'),
   limits: {
     fileSize: 50e6,
   },
@@ -53,7 +55,7 @@ const app = express();
 
 // Configure internationalization
 i18n.configure({
-  directory: path.resolve(__dirname, 'locales/'),
+  directory: fromRoot('src/locales/'),
   locales: ['en', 'de'],
   cookie: 'lang',
 });
@@ -125,10 +127,10 @@ app.use((req, res, next) => {
 });
 app.use(i18n.init);
 
-app.set('views', path.resolve(__dirname, 'views/'));
+app.set('views', fromRoot('src/views/'));
 app.set('view engine', 'pug');
 
-app.use('/static', express.static(path.resolve(__dirname, 'static/')) as any);
+app.use('/static', express.static(fromRoot('src/static/')) as any);
 
 app.locals.moment = moment;
 

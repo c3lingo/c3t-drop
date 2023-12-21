@@ -4,6 +4,9 @@
     "module": "commonjs",
     "strict": true,
     "experimentalDecorators": true,
-    "lib": ["dom", "es2015"]
+    "lib": ["dom", "es2015"],
+    "outDir": "dist",
+    "sourceMap": true,
+    "skipLibCheck": true
   }
 }

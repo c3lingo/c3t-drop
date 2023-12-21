@@ -4,9 +4,11 @@
   "description": "A drop point for material that helps us translate c3 talks",
   "main": "yarn start",
   "scripts": {
-    "start": "NODE_ENV=production ts-node index.ts",
     "test": "jest",
-    "fix": "prettier --write index.ts \"lib/**/*.ts\" \"models/**/*.ts\" && tslint --project tsconfig.json --fix \"lib/**/*.ts\" \"models/**/*.ts\""
+    "fix": "prettier --write index.ts \"lib/**/*.ts\" \"models/**/*.ts\" && tslint --project tsconfig.json --fix \"lib/**/*.ts\" \"models/**/*.ts\"",
+    "dev": "NODE_ENV=development ts-node index.ts | yarn bunyan",
+    "start": "NODE_ENV=production node dist/index.js",
+    "build": "tsc"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -6,3 +6,4 @@ config.js
 config.ts
 schedule.json
 schedule.*.json
+dist/

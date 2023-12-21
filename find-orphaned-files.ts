@@ -2,7 +2,7 @@
 
 import { resolve } from 'path';
 import * as config from './config';
-import TalkModel from './models/talks';
+import TalkModel from './src/models/talks';
 
 const schedulePath = resolve(__dirname, 'schedule.json');
 const filesBase = resolve(__dirname, 'files/');
