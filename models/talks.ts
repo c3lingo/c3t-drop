@@ -103,7 +103,7 @@ export default function TalkModel(
       this.day = day === null ? undefined : day;
       this.filePath = path.resolve(fileRootPath, this.id);
 
-      this.speakers = talk.persons.map((p: any) => p.public_name);
+      this.speakers = talk.persons.map((p: any) => p.public_name ?? p.name);
     }
 
     get files(): TalkFile[] {
