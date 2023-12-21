@@ -11,4 +11,13 @@ describe('sortTitle', () => {
     expect(sortTitle('Derivatives')).toEqual('derivatives');
     expect(sortTitle('Dienstag')).toEqual('dienstag');
   });
+
+  it('removes non-letter characters', () => {
+    expect(sortTitle('📊 GIRLS JUST WANNA HAVE SOME STATS')).toEqual(
+      'girls just wanna have some stats'
+    );
+    expect(sortTitle('37C3 カラオケ – Herausforderungen der aktuellen Karaokeforschung')).toEqual(
+      '37c3 カラオケ herausforderungen der aktuellen karaokeforschung'
+    );
+  });
 });
