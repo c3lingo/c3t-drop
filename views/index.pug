@@ -20,8 +20,9 @@ block content
             p.link-list__primary
               = talk.title
             p.link-list__secondary
-              = talk.speakers.join(', ')
-              = ' · '
+              if talk.speakers.length
+                = talk.speakers.join(', ')
+                = ' · '
               span(class=(talk.files.length ? 'label label-success' : 'label label-warning'))
                 = __n('%s files uploaded', talk.files.length)
               =' '

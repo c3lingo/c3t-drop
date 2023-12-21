@@ -77,6 +77,7 @@ export default function TalkModel(
     abstract?: string;
     day?: number;
     filePath: string;
+    url: URL;
 
     speakers: string[];
 
@@ -102,6 +103,7 @@ export default function TalkModel(
       this.abstract = talk.abstract || undefined;
       this.day = day === null ? undefined : day;
       this.filePath = path.resolve(fileRootPath, this.id);
+      this.url = new URL(talk.url);
 
       this.speakers = talk.persons.map((p: any) => p.public_name ?? p.name);
     }

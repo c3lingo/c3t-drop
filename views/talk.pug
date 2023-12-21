@@ -28,10 +28,27 @@ block content
     header.main-header.stack
       h1
         = talk.title
-      p
-        = talk.speakers.join(', ')
-        =' · '
-        = __n('Day %s', talk.day) + ', ' + talk.time
+      dl.meta
+        if talk.speakers.length
+          div
+            dt= __('Speakers')
+            each speaker in talk.speakers
+              dd= speaker
+        
+        div
+          dt= __('Time')
+          dd= __n('Day %s', talk.day)
+          dd= talk.time
+        
+        div
+          dt= __('Location')
+          dd=talk.room
+
+        div
+          dt= __('Links')
+          dd
+            a(href=talk.url)=talk.url.host
+   
 
     section.stack
       h1= __('Upload Files')

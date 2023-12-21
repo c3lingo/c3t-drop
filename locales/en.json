@@ -57,5 +57,9 @@
   "We’ll take any file type": "We’ll take any file type",
   "You can upload multiple files at once": "You can upload multiple files at once",
   "Maximum file size: %s MB": "Maximum file size: %s MB",
-  "Privacy/Legal": "Privacy/Legal"
+  "Privacy/Legal": "Privacy/Legal",
+  "Speakers": "Speakers",
+  "Time": "Time",
+  "Location": "Location",
+  "Links": "Links"
 }

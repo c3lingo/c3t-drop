@@ -55,5 +55,9 @@
   "We’ll take any file type": "Wir nehmen alles",
   "You can upload multiple files at once": "Du kannst mehrere Dateien gleichzeitig hochladen",
   "Maximum file size: %s MB": "Maximale Dateigröße: %s MB",
-  "Privacy/Legal": "Datenschutz/Impressum"
+  "Privacy/Legal": "Datenschutz/Impressum",
+  "Speakers": "Mit",
+  "Time": "Zeit",
+  "Location": "Ort",
+  "Links": "Links"
 }

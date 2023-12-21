@@ -118,6 +118,36 @@ ul {
   padding-left: 1em;
 }
 
+dl,
+dl > div {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+dl {
+  margin-left: calc(-1em);
+}
+
+dl > div {
+  margin-left: 1em;
+}
+
+dt {
+  margin-right: 0.3em;
+  opacity: 0.5;
+  font-feature-settings:
+    'c2sc' 1,
+    'smcp' 1;
+  font-weight: 600;
+}
+
+dd:not(:last-of-type)::after {
+  content: ', ';
+  margin-right: 0.2em;
+}
+
 .alert {
   background-color: var(--color);
   padding: 0.5em;
@@ -251,6 +281,7 @@ a:active.link-list__item {
 
 .comment pre {
   font-family: inherit;
+  white-space: pre-wrap;
 }
 
 .file {
