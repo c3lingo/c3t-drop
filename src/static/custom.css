@@ -288,3 +288,7 @@ a:active.link-list__item {
   color: inherit;
   text-decoration: none;
 }
+
+code.hash {
+  overflow-wrap: anywhere;
+}

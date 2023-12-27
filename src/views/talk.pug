@@ -126,7 +126,7 @@ block content
                 | SHA-1:
                 =' '
                 if file.meta.hash
-                  = file.meta.hash
+                  code.hash= file.meta.hash
                 else
                   em= __('calculating')
         else
