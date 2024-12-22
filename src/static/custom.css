@@ -127,11 +127,7 @@ dl > div {
 }
 
 dl {
-  margin-left: calc(-1em);
-}
-
-dl > div {
-  margin-left: 1em;
+  column-gap: 1em;
 }
 
 dt {
