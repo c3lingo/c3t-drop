@@ -328,7 +328,7 @@ async function getJSON(url: URL | string): Promise<any> {
   }
 }
 
-/** Parses a string to a URL. If the string does not contain a protocal, it is
+/** Parses a string to a URL. If the string does not contain a protocol, it is
  * assumed to refer to a file on the file system */
 function parseURL(url: string): URL {
   try {
