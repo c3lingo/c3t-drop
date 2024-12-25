@@ -59,5 +59,7 @@
   "Speakers": "Mit",
   "Time": "Zeit",
   "Venue": "Ort",
-  "Links": "Links"
+  "Links": "Links",
+  "The token has expired": "Das Token ist nicht mehr gültig",
+  "The token is not valid for this path": "Das Token gilt nicht für diesen Dateipfad"
 }

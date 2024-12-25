@@ -17,6 +17,9 @@ export const remoteScheduleUpdateInterval: number = parseInt(
   env('REMOTE_SCHEDULE_UPDATE_INTERVAL') ?? (5 * 60 * 1000).toString()
 );
 
+// Secret, e.g. for signing JSON Web Tokens
+export const secret = env('SECRET', true);
+
 function env(name: string, required?: false): string | undefined;
 function env(name: string, required?: true): string;
 function env(name: string, required = false): string | undefined {

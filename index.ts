@@ -1,15 +1,12 @@
 import * as archiver from 'archiver';
-import * as bunyan from 'bunyan';
 import * as express from 'express';
 import * as i18n from 'i18n';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as multer from 'multer';
 import * as path from 'path';
-import * as URL from 'url';
 
 // Middleware
-import * as basicAuth from 'basic-auth';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
@@ -21,20 +18,25 @@ import * as JSONViews from './src/json-views';
 
 import { fromRoot } from './src/lib/from-root';
 
-interface PotentiallyAuthenticatedRequest extends express.Request {
-  isAuthorized?: boolean;
-}
-class Error404 extends Error {
-  status = 404;
-}
-
 // Set up logger
-const log = bunyan.createLogger({ name: 'c3t-drop-server' });
+import { log } from './src/logger';
 
 const MONTH = 30 * 24 * 60 * 60 * 1000;
 
 // Load config
 import * as config from './config';
+import {
+  checkBasicAuth,
+  checkCookieAuth,
+  checkTokenAuth,
+  PotentiallyAuthenticatedRequest,
+} from './src/auth';
+import { Error404 } from './src/errors';
+
+if ((config.secret as unknown) === 'REPLACE THIS WITH A LONG RANDOM STRING') {
+  log.error('You must replace config.secret with a long random string');
+  process.exit(1);
+}
 
 const eventName = config.eventName;
 
@@ -77,44 +79,10 @@ function forceAuth(
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
     return res.status(401).send('<h1>Unauthorized</h1>');
   }
-  if (req.isAuthorized === undefined) checkAuth(req, res);
+  if (req.isAuthorized === undefined) checkBasicAuth(req, res);
   if (req.isAuthorized) return next();
   return unauthorized(res);
 }
-function checkAuth(
-  req: PotentiallyAuthenticatedRequest,
-  res: express.Response,
-  next?: express.NextFunction
-) {
-  const user = basicAuth(req);
-  const cookieAuth = req.cookies.auth;
-
-  let authorized = false;
-  if (!config.readCredentials) authorized = false;
-  else if (
-    user &&
-    user.name in config.readCredentials &&
-    user.pass === config.readCredentials[user.name]
-  ) {
-    authorized = true;
-    res.cookie('auth', `${user.name}:${user.pass}`, { maxAge: MONTH, httpOnly: true });
-  } else if (cookieAuth) {
-    try {
-      const [cookieUser, cookiePass] = cookieAuth.split(':');
-      authorized =
-        cookieUser in config.readCredentials && cookiePass === config.readCredentials[cookieUser];
-    } catch (e) {
-      log.warn(e);
-    }
-  }
-
-  req.isAuthorized = authorized;
-  if (next) next();
-  return authorized;
-}
-
-app.use(cookieParser() as any);
-app.use(checkAuth);
 
 app.use((req, res, next) => {
   log.info('%s %s', req.method, req.url);
@@ -122,13 +90,19 @@ app.use((req, res, next) => {
   if (req.query.lang) {
     log.info('Setting language to %s', req.query.lang);
     res.cookie('lang', req.query.lang, { maxAge: MONTH, httpOnly: true });
-    const { pathname } = URL.parse(req.url);
+    const { pathname } = new URL(req.url);
     res.redirect(pathname || '/');
   } else {
     next();
   }
 });
+
+app.use(cookieParser() as any);
 app.use(i18n.init);
+
+app.use(checkTokenAuth);
+app.use(checkBasicAuth);
+app.use(checkCookieAuth);
 
 app.set('views', fromRoot('src/views/'));
 app.set('view engine', 'pug');
@@ -145,11 +119,6 @@ app.get('/', async (req: PotentiallyAuthenticatedRequest, res) => {
   if (req.accepts('html')) res.render('index', resData);
   else if (req.accepts('json')) res.json(await JSONViews.index(resData));
   else res.status(406).send();
-});
-
-app.get('/impressum', (req: PotentiallyAuthenticatedRequest, res) => {
-  const { isAuthorized } = req;
-  res.render('impressum', { isAuthorized, eventName });
 });
 
 function ensureExistence<T>(thing?: T | null): T {
@@ -259,8 +228,9 @@ app.use((req, res, next) => {
 });
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   const status: number = (err as any).status || 500;
+  const publicMessage: string | undefined = (err as any).publicMessage;
   log.warn(err, '%s %s Error handler sent', req.method, req.url);
-  res.status(status).render('error', { status });
+  res.status(status).render('error', { status, publicMessage });
 });
 
 app.listen(9000, () => {

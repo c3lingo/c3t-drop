@@ -12,3 +12,6 @@ export const scheduleURLs: string[] = [
 
 // How often to reload remote schedule URLs
 export const remoteScheduleUpdateInterval: number = 5 * 60 * 1000;
+
+// Secret, e.g. for signing JSON Web Tokens
+export const secret = 'REPLACE THIS WITH A LONG RANDOM STRING';

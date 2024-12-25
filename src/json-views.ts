@@ -1,4 +1,9 @@
+import { SignJWT } from 'jose';
 import { type Talk } from './models/talks';
+
+import { secret } from '../config';
+
+const jwtSecret = new TextEncoder().encode(secret);
 
 export async function index({
   talks,
@@ -26,22 +31,34 @@ export async function talk({
   talk: InstanceType<Talk>;
   isAuthorized?: boolean;
 }) {
+  async function signPath(path: string) {
+    if (!isAuthorized) return null;
+    const token = await new SignJWT({ path })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('10min')
+      .sign(jwtSecret);
+    return `${path}?token=${token}`;
+  }
+
   return {
     isAuthorized,
     id: talk.id,
     title: talk.title,
     fileCount: talk.files.length,
     commentCount: talk.commentFiles.length,
-    files: talk.files.map((file) => ({
-      name: isAuthorized ? file.name : null,
-      redactedName: file.redactedName,
-      url: null,
-      meta: {
-        size: file.meta.stats?.size,
-        created: file.meta.stats?.birthtime,
-        hash: file.meta.hash,
-      },
-    })),
+    files: await Promise.all(
+      talk.files.map(async (file) => ({
+        name: isAuthorized ? file.name : null,
+        redactedName: file.redactedName,
+        url: await signPath(`/talks/${talk.id}/files/${encodeURIComponent(file.name)}`),
+        meta: {
+          size: file.meta.stats?.size,
+          created: file.meta.stats?.birthtime,
+          hash: file.meta.hash,
+        },
+      }))
+    ),
     comments: isAuthorized
       ? (await talk.getComments()).map((comment) => ({
           body: comment.body.toString(),
@@ -50,6 +67,6 @@ export async function talk({
           },
         }))
       : null,
-    zipUrl: null,
+    url: await signPath(`/talks/${talk.id}/files.zip`),
   };
 }

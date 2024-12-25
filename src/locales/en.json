@@ -61,5 +61,7 @@
   "Speakers": "Speakers",
   "Time": "Time",
   "Venue": "Venue",
-  "Links": "Links"
+  "Links": "Links",
+  "The token has expired": "The token has expired",
+  "The token is not valid for this path": "The token is not valid for this path"
 }
