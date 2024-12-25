@@ -4,6 +4,7 @@ import * as i18n from 'i18n';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as multer from 'multer';
+import * as URL from 'node:url';
 import * as path from 'path';
 
 // Middleware
@@ -90,7 +91,7 @@ app.use((req, res, next) => {
   if (req.query.lang) {
     log.info('Setting language to %s', req.query.lang);
     res.cookie('lang', req.query.lang, { maxAge: MONTH, httpOnly: true });
-    const { pathname } = new URL(req.url);
+    const { pathname } = URL.parse(req.url);
     res.redirect(pathname || '/');
   } else {
     next();
