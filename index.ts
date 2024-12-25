@@ -14,7 +14,10 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 // Models
-import TalkModel, { TalkFile } from './src/models/talks';
+import TalkModel, { FileInfo, TalkFile } from './src/models/talks';
+
+// JSON Views
+import * as JSONViews from './src/json-views';
 
 import { fromRoot } from './src/lib/from-root';
 
@@ -134,12 +137,14 @@ app.use('/static', express.static(fromRoot('src/static/')) as any);
 
 app.locals.moment = moment;
 
-app.get('/', (req: PotentiallyAuthenticatedRequest, res) => {
+app.get('/', async (req: PotentiallyAuthenticatedRequest, res) => {
   const { isAuthorized } = req;
   const scheduleVersion = Talk.getScheduleVersion();
-  return Talk.allSorted().then((talks) =>
-    res.render('index', { talks, isAuthorized, eventName, scheduleVersion })
-  );
+  const talks = await Talk.allSorted();
+  const resData = { talks, isAuthorized, eventName, scheduleVersion };
+  if (req.accepts('html')) res.render('index', resData);
+  else if (req.accepts('json')) res.json(await JSONViews.index(resData));
+  else res.status(406).send();
 });
 
 app.get('/impressum', (req: PotentiallyAuthenticatedRequest, res) => {
@@ -155,31 +160,28 @@ function ensureExistence<T>(thing?: T | null): T {
   return thing;
 }
 
-app.get('/talks/:id', (req: PotentiallyAuthenticatedRequest, res, next) => {
+app.get('/talks/:id', async (req: PotentiallyAuthenticatedRequest, res, next) => {
   const { uploadCount, commentCount, nothingReceived } = req.query;
   const { isAuthorized } = req;
-  return Talk.findById(req.params.id)
-    .then(ensureExistence)
-    .then(async (talk) => {
-      if (req.isAuthorized) {
-        const comments = await talk.getComments();
-        // FIXME: This destroys the getter
-        return { talk, comments };
-      }
-      return { talk };
-    })
-    .then(({ talk, comments }) => {
-      res.render('talk', {
-        talk,
-        comments,
-        uploadCount,
-        commentCount,
-        nothingReceived,
-        isAuthorized,
-        eventName,
-      });
-    })
-    .catch(next);
+
+  const talk = await Talk.findById(req.params.id).then(ensureExistence);
+  let comments: { body: Buffer; info: FileInfo }[] | null = null;
+
+  if (req.isAuthorized) comments = await talk.getComments();
+  const resData = {
+    talk,
+    comments,
+    uploadCount,
+    commentCount,
+    nothingReceived,
+    isAuthorized,
+    eventName,
+  };
+
+  if (req.accepts('html')) res.render('talk', resData);
+  else if (req.accepts('json')) {
+    res.json(await JSONViews.talk(resData));
+  } else res.status(406).send();
 });
 
 app.get('/sign-in', forceAuth, (req, res) => {

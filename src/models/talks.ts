@@ -32,7 +32,7 @@ export class TalkFile {
   }
 }
 
-interface FileInfo {
+export interface FileInfo {
   stats?: Stats;
   isDir: boolean;
   isComment?: boolean;
@@ -313,6 +313,8 @@ export default function TalkModel(
 
   return Talk;
 }
+
+export type Talk = ReturnType<typeof TalkModel>;
 
 /** Fetches a JSON file via HTTP or from the file system */
 async function getJSON(url: URL | string): Promise<any> {
