@@ -5,13 +5,18 @@ import { secret } from '../config';
 
 const jwtSecret = new TextEncoder().encode(secret);
 
+export interface IndexResponse {
+  talks: { id: string; title: string; fileCount: number; commentCount: number; url: string }[];
+  isAuthorized: boolean;
+}
+
 export async function index({
   talks,
   isAuthorized = false,
 }: {
   talks: InstanceType<Talk>[];
   isAuthorized?: boolean;
-}) {
+}): Promise<IndexResponse> {
   return {
     talks: talks.map((talk) => ({
       id: talk.id,
@@ -24,13 +29,29 @@ export async function index({
   };
 }
 
+export interface TalkResponse {
+  isAuthorized: boolean;
+  id: string;
+  title: string;
+  fileCount: number;
+  commentCount: number;
+  files: {
+    name: string | null;
+    redactedName: string;
+    url: string | null;
+    meta: { size: any; created: any; hash: any };
+  }[];
+  comments: { body: string; meta: { created: Date | undefined } }[] | null;
+  allFilesURL: string | null;
+}
+
 export async function talk({
   talk,
   isAuthorized = false,
 }: {
   talk: InstanceType<Talk>;
   isAuthorized?: boolean;
-}) {
+}): Promise<TalkResponse> {
   async function signPath(path: string) {
     if (!isAuthorized) return null;
     const token = await new SignJWT({ path })
@@ -67,6 +88,6 @@ export async function talk({
           },
         }))
       : null,
-    url: await signPath(`/talks/${talk.id}/files.zip`),
+    allFilesURL: await signPath(`/talks/${talk.id}/files.zip`),
   };
 }
