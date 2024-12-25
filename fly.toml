@@ -21,7 +21,7 @@ auto_extend_size_limit = "100GB"
 [http_service]
 internal_port = 9000
 force_https = true
-auto_stop_machines = 'stop'
+auto_stop_machines = 'suspend'
 auto_start_machines = true
 min_machines_running = 0
 processes = ['app']
