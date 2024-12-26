@@ -68,41 +68,42 @@ export async function talk({
 
   const [files, comments] = await Promise.all([
     // files
-    filterNonNull(
-      await Promise.all(
-        talk.files.map(async (file) => {
-          const { stats, hash } = file.meta;
-          if (!stats || !hash) return;
-          return {
-            name: isAuthorized ? file.name : null,
-            redactedName: file.redactedName,
-            url: await signPath(`/talks/${talk.id}/files/${encodeURIComponent(file.name)}`),
-            meta: {
-              size: stats.size,
-              created: stats.birthtime,
-              hash,
-            },
-          };
-        })
-      )
-    ),
+    Promise.all(
+      talk.files.map(async (file) => {
+        const { stats, hash } = file.meta;
+        if (!stats || !hash) return;
+        return {
+          name: isAuthorized ? file.name : null,
+          redactedName: file.redactedName,
+          url: await signPath(`/talks/${talk.id}/files/${encodeURIComponent(file.name)}`),
+          meta: {
+            size: stats.size,
+            created: stats.birthtime,
+            hash,
+          },
+        };
+      })
+    ).then(filterNonNull),
 
     // comments
     isAuthorized
-      ? filterNonNull(
-          (await talk.getComments()).map((comment) => {
-            const { stats, hash } = comment.info;
-            if (!stats || !hash) return;
-            return {
-              body: comment.body.toString(),
-              meta: {
-                size: stats.size,
-                created: stats.birthtime,
-                hash,
-              },
-            };
-          })
-        )
+      ? talk
+          .getComments()
+          .then((c) =>
+            c.map((comment) => {
+              const { stats, hash } = comment.info;
+              if (!stats || !hash) return;
+              return {
+                body: comment.body.toString(),
+                meta: {
+                  size: stats.size,
+                  created: stats.birthtime,
+                  hash,
+                },
+              };
+            })
+          )
+          .then(filterNonNull)
       : null,
   ]);
 
