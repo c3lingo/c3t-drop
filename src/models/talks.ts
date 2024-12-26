@@ -33,8 +33,7 @@ export class TalkFile {
 }
 
 export interface FileInfo {
-  stats?: Stats;
-  isDir: boolean;
+  stats: Stats;
   isComment?: boolean;
   hash?: string | null;
 }
@@ -112,10 +111,7 @@ export default function TalkModel(
       if (!this.filesCache || this.filesCacheLastUpdated < filesLastUpdated) {
         this.filesCache = _(files)
           .map((meta, filePath) => ({ meta, path: filePath }))
-          .filter(
-            (file) =>
-              !file.meta.isDir && !file.meta.isComment && file.path.indexOf(this.filePath) === 0
-          )
+          .filter((file) => !file.meta.isComment && file.path.indexOf(this.filePath) === 0)
           .map((file) => new TalkFile(file.path, file.meta))
           .value();
         this.filesCacheLastUpdated = Date.now();
@@ -278,7 +274,7 @@ export default function TalkModel(
     if (!isInitialScan) log.info('Added file %s', fp);
     const p = path.resolve(fp);
     const isComment = p.substr(-COMMENT_EXTENSION.length) === COMMENT_EXTENSION;
-    files[p] = { stats, isComment, isDir: false, hash: null };
+    files[p] = { stats, isComment, hash: null };
     filesLastUpdated = Date.now();
     streamHash(p)
       .then((hash) => {
@@ -300,14 +296,10 @@ export default function TalkModel(
   }
   function addDir(fp: string) {
     if (!isInitialScan) log.info('Added directory %s', fp);
-    const p = path.resolve(fp);
-    files[p] = { isDir: true };
     filesLastUpdated = Date.now();
   }
   function removeDir(fp: string) {
     if (!isInitialScan) log.info('Removed directory %s', fp);
-    const p = path.resolve(fp);
-    delete files[p];
     filesLastUpdated = Date.now();
   }
 
