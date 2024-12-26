@@ -66,13 +66,9 @@ export async function talk({
     return `${path}?token=${token}`;
   }
 
-  return {
-    isAuthorized,
-    id: talk.id,
-    title: talk.title,
-    fileCount: talk.files.length,
-    commentCount: talk.commentFiles.length,
-    files: filterNonNull(
+  const [files, comments] = await Promise.all([
+    // files
+    filterNonNull(
       await Promise.all(
         talk.files.map(async (file) => {
           const { stats, hash } = file.meta;
@@ -90,7 +86,9 @@ export async function talk({
         })
       )
     ),
-    comments: isAuthorized
+
+    // comments
+    isAuthorized
       ? filterNonNull(
           (await talk.getComments()).map((comment) => {
             const { stats, hash } = comment.info;
@@ -106,6 +104,21 @@ export async function talk({
           })
         )
       : null,
-    allFilesURL: await signPath(`/talks/${talk.id}/files.zip`),
+  ]);
+
+  let allFilesURL = null;
+  if (files.length && comments?.length) {
+    allFilesURL = await signPath(`/talks/${talk.id}/files.zip`);
+  }
+
+  return {
+    isAuthorized,
+    id: talk.id,
+    title: talk.title,
+    fileCount: talk.files.length,
+    commentCount: talk.commentFiles.length,
+    files,
+    comments,
+    allFilesURL,
   };
 }
